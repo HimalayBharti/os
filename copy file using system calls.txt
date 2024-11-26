@@ -1,0 +1,28 @@
+#include <stdio.h>
+#include <stdlib.h> // For system()
+
+void copy_file(const char *source, const char *destination) {
+    char command[512]; // Buffer to hold the shell command
+
+    // Construct the copy command
+    snprintf(command, sizeof(command), "copy \"%s\" \"%s\"", source, destination);
+
+    // Execute the command
+    int result = system(command);
+
+    // Check if the command was successful
+    if (result == 0) {
+        printf("File copied successfully from %s to %s\n", source, destination);
+    } else {
+        printf("Error copying file from %s to %s\n", source, destination);
+    }
+}
+
+int main() {
+    const char *source_file = "D:\\Himalay\\SEM-3\\os\\Practical mains";
+    const char *destination_file = "D:\\Himalay\\SEM-3\\os\\Practical mains\\Destination(Q7).txt";
+
+    copy_file(source_file, destination_file);
+
+    return 0;
+}

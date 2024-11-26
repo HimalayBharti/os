@@ -1,0 +1,84 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+
+int *array;            // Array of numbers
+int total_sum = 0;     // Total sum (shared by threads)
+pthread_mutex_t lock;  // Mutex for synchronization
+
+// Function that each thread will run to calculate partial sums
+void* calculate_sum(void* arg) {
+    int *data = (int*)arg;  // Start and end indices for this thread
+    int start = data[0];
+    int end = data[1];
+    int sum = 0;
+    int i;
+
+    // Calculate the sum of elements in the assigned range
+    for (i = start; i < end; i++) {
+        sum += array[i];
+    }
+
+    // Add the sum to the total sum in a thread-safe manner
+    pthread_mutex_lock(&lock);
+    total_sum += sum;
+    pthread_mutex_unlock(&lock);
+
+    pthread_exit(NULL);  // Exit the thread
+}
+
+int main() {
+    int n, num_threads, i;
+    pthread_t threads[4];    // Array to store thread IDs
+    int thread_data[4][2];   // Array to store start and end indices for each thread
+
+    printf("Enter the number of elements: ");
+    scanf("%d", &n);
+
+    array = (int*)malloc(n * sizeof(int));  // Allocate memory for the array
+    if (array == NULL) {
+        printf("Memory allocation failed.\n");
+        return 1;
+    }
+
+    printf("Enter the elements of the array:\n");
+    for (i = 0; i < n; i++) {
+        scanf("%d", &array[i]);
+    }
+
+    printf("Enter the number of threads (up to 4): ");
+    scanf("%d", &num_threads);
+    if (num_threads > 4) {
+        printf("Maximum 4 threads allowed. Setting to 4.\n");
+        num_threads = 4;
+    }
+
+    // Initialize the mutex
+    pthread_mutex_init(&lock, NULL);
+
+    // Divide the work among threads
+    int elements_per_thread = n / num_threads;
+    for (i = 0; i < num_threads; i++) {
+        thread_data[i][0] = i * elements_per_thread;          // Start index
+        thread_data[i][1] = (i + 1) * elements_per_thread;    // End index
+        if (i == num_threads - 1) {                          // Last thread gets remaining elements
+            thread_data[i][1] = n;
+        }
+
+        // Create a thread and pass its start and end indices
+        pthread_create(&threads[i], NULL, calculate_sum, thread_data[i]);
+    }
+
+    // Wait for all threads to finish
+    for (i = 0; i < num_threads; i++) {
+        pthread_join(threads[i], NULL);
+    }
+
+    printf("The total sum is: %d\n", total_sum);
+
+    // Clean up
+    pthread_mutex_destroy(&lock);
+    free(array);
+
+    return 0;
+}

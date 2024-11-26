@@ -1,0 +1,89 @@
+#include <stdio.h>
+
+typedef struct {
+    int process_id;    // Process ID
+    int arrival_time;  // Arrival Time
+    int burst_time;    // Burst Time
+    int completion_time;  // Completion Time
+    int turnaround_time;  // Turnaround Time
+    int waiting_time;     // Waiting Time
+} Process;
+
+void sort_by_arrival_time(Process processes[], int n) {
+    int i, j;
+    Process temp;
+
+    // Bubble sort processes by arrival time
+    for (i = 0; i < n - 1; i++) {
+        for (j = 0; j < n - i - 1; j++) {
+            if (processes[j].arrival_time > processes[j + 1].arrival_time) {
+                temp = processes[j];
+                processes[j] = processes[j + 1];
+                processes[j + 1] = temp;
+            }
+        }
+    }
+}
+
+void fcfs_scheduling(Process processes[], int n) {
+    int i;
+    int current_time = 0;
+
+    // Sort processes based on arrival time
+    sort_by_arrival_time(processes, n);
+
+    // Calculate Completion Time, Turnaround Time, and Waiting Time
+    for (i = 0; i < n; i++) {
+        if (current_time < processes[i].arrival_time) {
+            current_time = processes[i].arrival_time;
+        }
+
+        processes[i].completion_time = current_time + processes[i].burst_time;
+        current_time = processes[i].completion_time;
+
+        processes[i].turnaround_time = processes[i].completion_time - processes[i].arrival_time;
+        processes[i].waiting_time = processes[i].turnaround_time - processes[i].burst_time;
+    }
+}
+
+void display_results(Process processes[], int n) {
+    int i;
+    printf("Process\tArrival Time\tBurst Time\tCompletion Time\tTurnaround Time\tWaiting Time\n");
+    for (i = 0; i < n; i++) {
+        printf("%d\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n",
+               processes[i].process_id,
+               processes[i].arrival_time,
+               processes[i].burst_time,
+               processes[i].completion_time,
+               processes[i].turnaround_time,
+               processes[i].waiting_time);
+    }
+}
+
+int main() {
+    int n, i;
+
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    Process processes[n];
+
+    // Input process details
+    for (i = 0; i < n; i++) {
+        printf("\nEnter details for Process %d\n", i + 1);
+        processes[i].process_id = i + 1;
+        printf("Arrival Time: ");
+        scanf("%d", &processes[i].arrival_time);
+        printf("Burst Time: ");
+        scanf("%d", &processes[i].burst_time);
+    }
+
+    // Perform FCFS Scheduling
+    fcfs_scheduling(processes, n);
+
+    // Display Results
+    printf("\nScheduling Results:\n");
+    display_results(processes, n);
+
+    return 0;
+}

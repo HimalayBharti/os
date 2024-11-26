@@ -1,0 +1,11 @@
+#include<stdlib.h>
+void main()
+{
+printf("Memory information\n");
+system("grep 'MemTotal' /proc/meminfo");
+system("grep Memfree' /proc/meminfo");
+sytem("grep 'MemAvailable' /proc/meminfo"); 
+sytem("grep 'KernelStack' /proc/meminfo");
+sytem("grep 'Mapped' /proc/meminfo");
+return;
+}
