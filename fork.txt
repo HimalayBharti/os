@@ -1,0 +1,71 @@
+#include <stdio.h>
+#include <unistd.h>
+
+void same_program_same_code() {
+    pid_t pid = fork();
+
+    if (pid < 0) {
+        perror("Fork failed");
+    } else if (pid == 0) {
+        // Child process
+        printf("[Part i] Child Process: PID = %d, Parent PID = %d\n", getpid(), getppid());
+    } else {
+        // Parent process
+        printf("[Part i] Parent Process: PID = %d, Child PID = %d\n", getpid(), pid);
+        sleep(1); // Simulate waiting for child
+    }
+}
+
+void same_program_different_code() {
+    pid_t pid = fork();
+
+    if (pid < 0) {
+        perror("Fork failed");
+    } else if (pid == 0) {
+        // Child process executes different code
+        printf("[Part ii] Child Process: Executing different code. PID = %d\n", getpid());
+        execlp("ls", "ls", "-l", NULL); // Execute "ls -l" command
+        perror("exec failed");
+    } else {
+        // Parent process
+        printf("[Part ii] Parent Process: Waiting for child. PID = %d\n", getpid());
+        sleep(2); // Simulate waiting for child
+        printf("[Part ii] Parent Process: Child finished.\n");
+    }
+}
+
+void parent_waits_for_child() {
+    pid_t pid = fork();
+
+    if (pid < 0) {
+        perror("Fork failed");
+    } else if (pid == 0) {
+        // Child process
+        printf("[Part iii] Child Process: Performing task. PID = %d\n", getpid());
+        sleep(2); // Simulate a task
+        printf("[Part iii] Child Process: Task completed.\n");
+    } else {
+        // Parent process
+        printf("[Part iii] Parent Process: Waiting for child to finish. PID = %d\n", getpid());
+        sleep(3); // Simulate waiting
+        printf("[Part iii] Parent Process: Child completed its task.\n");
+    }
+}
+
+int main() {
+    printf("Combined Program: Demonstrating Parent and Child Behavior\n");
+
+    // Part i
+    printf("\n--- Part i: Same Program, Same Code ---\n");
+    same_program_same_code();
+
+    // Part ii
+    printf("\n--- Part ii: Same Program, Different Code ---\n");
+    same_program_different_code();
+
+    // Part iii
+    printf("\n--- Part iii: Parent Waits for Child ---\n");
+    parent_waits_for_child();
+
+    return 0;
+}
